@@ -200,52 +200,52 @@ jobs:
         body: 编译完成时间：${{ env.Tongzhi_Date }}
         artifacts: "${{ env.FIRMWARE_PATH }}/*"
         
-    - name: 发送[在线更新固件]至云端1
-      id: autoup
-      if: steps.compile.outcome == 'success' && env.UPDATE_FIRMWARE_ONLINE == 'true' && env.REPO_TOKEN
-      uses: ncipollo/release-action@v1
-      with:
-        name: AutoUpdate
-        tag: ${{ env.Update_tag }}
-        token: ${{ secrets.REPO_TOKEN }}
-        allowUpdates: true
-        #body: ${{ env.Tongzhi_Date }}
-        body: 编译完成时间：${{ env.Tongzhi_Date }}
-        artifacts: "${{ env.BIN_PATH }}/*"
+#    - name: 发送[在线更新固件]至云端1
+#      id: autoup
+#      if: steps.compile.outcome == 'success' && env.UPDATE_FIRMWARE_ONLINE == 'true' && env.REPO_TOKEN
+#      uses: ncipollo/release-action@v1
+#      with:
+#        name: AutoUpdate
+#        tag: ${{ env.Update_tag }}
+#        token: ${{ secrets.REPO_TOKEN }}
+#        allowUpdates: true
+#        #body: ${{ env.Tongzhi_Date }}
+#        body: 编译完成时间：${{ env.Tongzhi_Date }}
+#        artifacts: "${{ env.BIN_PATH }}/*"
         
-    - name: 发送[在线更新固件]至云端2
-      if: steps.autoup.outcome == 'success' && env.UPDATE_FIRMWARE_ONLINE == 'true' && env.REPO_TOKEN
-      run: |
-        mkdir -p Github_Api
-        cd Github_Api
-        curl -H "Authorization: Bearer ${{ secrets.REPO_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.Update_tag }} -o zzz_api
-        if [[ $? -ne 0 ]]; then
-          curl -H "Authorization: Bearer ${REPO_TOKEN}" https://api.github.com/repos/${GIT_REPOSITORY}/releases/tags/${Update_tag} > zzz_api
-        fi
+#    - name: 发送[在线更新固件]至云端2
+#      if: steps.autoup.outcome == 'success' && env.UPDATE_FIRMWARE_ONLINE == 'true' && env.REPO_TOKEN
+#      run: |
+#        mkdir -p Github_Api
+#        cd Github_Api
+#        curl -H "Authorization: Bearer ${{ secrets.REPO_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.Update_tag }} -o zzz_api
+#        if [[ $? -ne 0 ]]; then
+#          curl -H "Authorization: Bearer ${REPO_TOKEN}" https://api.github.com/repos/${GIT_REPOSITORY}/releases/tags/${Update_tag} > zzz_api
+#        fi
         
-    - name: 发送[在线更新固件]至云端3
-      if: steps.autoup.outcome == 'success' && env.UPDATE_FIRMWARE_ONLINE == 'true' && env.REPO_TOKEN
-      uses: ncipollo/release-action@v1
-      with:
-        #name: AutoUpdate-${{ env.TARGET_BOARD }}
-        name: AutoUpdate
-        tag: ${{ env.Update_tag }}
-        token: ${{ secrets.REPO_TOKEN }}
-        artifacts: "Github_Api/*"
-        allowUpdates: true
-        #body: ${{ env.Tongzhi_Date }}
-        body: 编译完成时间：${{ env.Tongzhi_Date }}
+#    - name: 发送[在线更新固件]至云端3
+##      if: steps.autoup.outcome == 'success' && env.UPDATE_FIRMWARE_ONLINE == 'true' && env.REPO_TOKEN
+#      uses: ncipollo/release-action@v1
+#      with:
+#        #name: AutoUpdate-${{ env.TARGET_BOARD }}
+#        name: AutoUpdate
+#        tag: ${{ env.Update_tag }}
+#        token: ${{ secrets.REPO_TOKEN }}
+#        artifacts: "Github_Api/*"
+#        allowUpdates: true
+#        #body: ${{ env.Tongzhi_Date }}
+#        body: 编译完成时间：${{ env.Tongzhi_Date }}
 
-    - name: Telegram或pushplus信息通知
-      if: env.PUSH_PLUS_TOKEN && env.INFORMATION_NOTICE == 'PUSH' || env.TELEGRAM_BOT_TOKEN && env.INFORMATION_NOTICE == 'TG'
-      run: |
-        if [[ "${{ env.INFORMATION_NOTICE }}" == "TG" ]]; then
-          if [[ "${{steps.compile.outcome}}" == 'success' ]]; then
-            curl -k --data chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" --data "text=我亲爱的✨主人✨：您使用【${{matrix.target}}】文件夹编译【${REPO_BRANCH}分支的${{env.TARGET_PROFILE}}】固件顺利编译完成了✌️💯💐(${{env.WAREHOUSE_MAN}}仓库的#${{env.RUN_NUMBER}}号)！($(date +%Y年%m月%d号%H时%M分))" "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
-          fi
-        fi
-        if [[ "${{ env.INFORMATION_NOTICE }}" == "PUSH" ]]; then
-          if [[ "${{steps.compile.outcome}}" == 'success' ]]; then
-            curl -k --data token="${{ secrets.PUSH_PLUS_TOKEN }}" --data title="【${{env.WAREHOUSE_MAN}}】编译成功" --data "content=我亲爱的✨主人✨：您使用【${{matrix.target}}】文件夹编译【${REPO_BRANCH}分支的${{env.TARGET_PROFILE}}】固件顺利编译完成了✌️💯💐(${{env.WAREHOUSE_MAN}}仓库的#${{env.RUN_NUMBER}}号)！($(date +%Y年%m月%d号%H时%M分))" "http://www.pushplus.plus/send"
-          fi
-        fi
+#    - name: Telegram或pushplus信息通知
+#      if: env.PUSH_PLUS_TOKEN && env.INFORMATION_NOTICE == 'PUSH' || env.TELEGRAM_BOT_TOKEN && env.INFORMATION_NOTICE == 'TG'
+#      run: |
+#        if [[ "${{ env.INFORMATION_NOTICE }}" == "TG" ]]; then
+#          if [[ "${{steps.compile.outcome}}" == 'success' ]]; then
+#            curl -k --data chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" --data "text=我亲爱的✨主人✨：您使用【${{matrix.target}}】文件夹编译【${REPO_BRANCH}分支的${{env.TARGET_PROFILE}}】固件顺利编译完成了✌️💯💐(${{env.WAREHOUSE_MAN}}仓库的#${{env.RUN_NUMBER}}号)！($(date +%Y年%m月%d号%H时%M分))" "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
+#          fi
+#        fi
+#        if [[ "${{ env.INFORMATION_NOTICE }}" == "PUSH" ]]; then
+#          if [[ "${{steps.compile.outcome}}" == 'success' ]]; then
+#            curl -k --data token="${{ secrets.PUSH_PLUS_TOKEN }}" --data title="【${{env.WAREHOUSE_MAN}}】编译成功" --data "content=我亲爱的✨主人✨：您使用【${{matrix.target}}】文件夹编译【${REPO_BRANCH}分支的${{env.TARGET_PROFILE}}】固件顺利编译完成了✌️💯💐(${{env.WAREHOUSE_MAN}}仓库的#${{env.RUN_NUMBER}}号)！($(date +%Y年%m月%d号%H时%M分))" "http://www.pushplus.plus/send"
+#          fi
+#        fi
